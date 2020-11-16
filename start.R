@@ -1,89 +1,80 @@
 source('C:/git/cqapiR/functions.R')
 
-get_concepts("adb_energie")
 
 
-exit(1)
-dataset = "adb_energie"
-cq_url = "http://lyo-peva02.spectrumk.ads:8020"
-cq_url = "http://lyo-peva01.spectrumk.ads:8080"
-cq_token = login("initial_user@ingef.de")
-cq_token = "dKRILd5JEKwBSuxJ0DhK/ONzy60wPkY7FzpaQQ+WGXOSsR0JB5gl/IPohUmbcC3R/3MLhg6zxDZiD0KjqdnJfF4o0zW7gBBvsd7ZZ/vR22aHyzOrY4813xtfdxMZFnVJUTllPiM4CeU2JFJdK6pznfehc4refCQO1onpR7QJW5d/8LqJrtThPTizZFCCSoFEK94zpWbTRtLgdKhPBQvSgaz6WzPM7+9lpqHRCTESwdUrjSJLj0zDtXeh9V482gSMdT6DiCIxonI0+YlCYLNref1dhMdG2ok2xw/FUK7Cp7hMKDyHwVm72CB+CN9a3vba"
 
-query_id = "adb_bosch.90365c22-4e0a-4a15-aad0-46f0429267e2"
 
-query_info = get_query_info(query_id)
-data = get_query_result(query_id)
+mock_json = list(list(name = "name1", task="task1"), 
+                 list(name="name2", task="task2"),
+                 list(name="name3", task="task2"))
 
-stored_queries = get_stored_queries("adb_bosch")
-get_query_result(query_label_to_id("adb_bosch", "testikus"))
+# get all names in a list
+lapply(mock_json, function(x) x[["name"]])
 
-query = fromJSON('{
-    "type": "CONCEPT_QUERY",
-    "root": {
-        "type": "AND",
-        "children": [
-            {
-                "type": "DATE_RESTRICTION",
-                "dateRange": {
-                    "min": "2017-01-01",
-                    "max": "2017-12-31"
-                },
-                "child": {
-                    "type": "OR",
-                    "children": [
-                        {
-                            "type": "CONCEPT",
-                            "ids": [
-                                "adb_bosch.icd.c00-d48.c43-c44.c43.c43_0"
-                            ],
-                            "label": "C43.0",
-                            "tables": [
-                                {
-                                    "id": "adb_bosch.icd.kh_diagnose_icd_code",
-                                    "dateColumn": {
-                                        "value": "adb_bosch.icd.kh_diagnose_icd_code.entlassungsdatum"
-                                    },
-                                    "selects": [],
-                                    "filters": []
-                                },
-                                {
-                                    "id": "adb_bosch.icd.au_fall",
-                                    "dateColumn": {
-                                        "value": "adb_bosch.icd.au_fall.au-beginn"
-                                    },
-                                    "selects": [],
-                                    "filters": []
-                                },
-                                {
-                                    "id": "adb_bosch.icd.arzt_diagnose_icd_code",
-                                    "dateColumn": null,
-                                    "selects": [],
-                                    "filters": []
-                                },
-                                {
-                                    "id": "adb_bosch.icd.au_fall_21c",
-                                    "dateColumn": {
-                                        "value": "adb_bosch.icd.au_fall_21c.au-beginn_(21c)"
-                                    },
-                                    "selects": [],
-                                    "filters": []
-                                }
-                            ],
-                            "selects": []
-                        }
-                    ]
-                }
-            }
-        ]
-    }
-}')
+# get elements that contain task2
+mock_json[lapply(mock_json, function(x) x[["task"]]) == "task2"]
+
+# define conquery parameters
+
+token_initial_user = "dKRILd5JEKwBSuxJ0DhK/ONzy60wPkY7FzpaQQ+WGXOSsR0JB5gl/IPohUmbcC3R/3MLhg6zxDZiD0KjqdnJfF4o0zW7gBBvsd7ZZ/vR22aHyzOrY4813xtfdxMZFnVJUTllPiM4CeU2JFJdK6pznfehc4refCQO1onpR7QJW5d/8LqJrtThPTizZFCCSoFEK94zpWbTRtLgdKhPBQvSgaz6WzPM7+9lpqHRCTESwdUrjSJLj0zDtXeh9V482gSMdT6DiCIxonI0+YlCYLNref1dhMdG2ok2xw/FUK7Cp7hMKDyHwVm72CB+CN9a3vba"
 
 connection = list(
   url="http://lyo-peva01.spectrumk.ads:8080",
-  token=NULL,
+  token=token_initial_user,
   dataset="adb_energie"
 )
-execute_query("adb_bosch", query)
-get_query_result(execute_query("adb_energie", concept_to_query("adb_energie.alter", start_date="2017-01-01", end_date="2017-01-31")))
 
+validate_connection(connection)
+
+
+
+
+
+
+
+# token can be generated from user name and password via log in
+connection = login(connection)
+
+# get concepts loaded
+get_concepts(connection)
+
+# get executed queries
+get_stored_queries(connection)
+
+# create own query from concept id
+concept_id = "adb_energie.alter"
+query = concept_to_query(concept_id, connection = connection, start_date="2017-01-01", end_date="2017-01-31")
+
+# execute query, get query information and result
+query_id = execute_query(connection, query)
+get_query_info(connection, query_id)
+get_query_result(connection, query_id)
+
+# execute form-query
+age_query = concept_to_query("adb_energie.alter", connection = connection)
+gender_query = concept_to_query("adb_energie.geschlecht", connection = connection)
+
+## absolute case
+absolute_query <- absolute_form_query(query_id, features = list(age_query$root, gender_query$root), 
+                                      start_date="2017-01-01", end_date="2017-01-31")
+form_query_id = execute_query(connection, absolute_query)
+get_query_result(connection, form_query_id)
+
+## relative case
+relative_query <- relative_form_query(query_id, features = list(age_query$root, gender_query$root),
+                                      outcomes = list(age_query$root, gender_query$root))
+form_query_id = execute_query(connection, relative_query)
+get_query_result(connection, form_query_id)
+
+# execute table export  (in development -> 02)
+connection = list(
+  url="http://lyo-peva02.spectrumk.ads:8080",
+  token=token_initial_user,
+  dataset="adb_energie"
+)
+table_query = table_export_query(query=get_query(connection, query_id),
+                                 start_date="2017-01-01",
+                                 end_date="2017-01-31",
+                                 connector_id = "adb_energie.alter.alter",
+                                 date_column = "adb_energie.alter.alter.versichertenzeit")
+table_query_id = execute_query(connection, table_query)
