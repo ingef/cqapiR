@@ -330,7 +330,8 @@ add_date_restriction <- function(query, start_date, end_date){
 #'
 #' Creates table export query for getting raw data in conquery
 #'
-#' @param query query that defines population
+#' @param connection connection object
+#' @param query_id query_id of the population
 #' @param start_date start date for date restriction of table data
 #' @param end_date end date for date restriction of table data
 #' @param connector_id id of connector that contains raw data
@@ -338,11 +339,15 @@ add_date_restriction <- function(query, start_date, end_date){
 #' @return table export query
 #' @example man/examples/wide_table_query.R
 #' @export
-table_export_query <- function(query,
+table_export_query <- function(connection,
+                               query_id,
                                start_date,
                                end_date,
                                connector_id,
                                date_column){
+
+  query = get_query(connection, query_id)
+
   return(list(
     type="TABLE_EXPORT",
     query=query,
