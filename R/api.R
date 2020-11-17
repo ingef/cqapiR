@@ -193,6 +193,7 @@ get_stored_queries <- function(connection){
 #' @param connection connection object
 #' @param query query that will be executed
 #' @return query
+#' @example man/examples/create_and_execute_query.R
 #' @export
 execute_query <- function(connection, query){
   connection = add_queries_end(connection)
@@ -209,6 +210,7 @@ execute_query <- function(connection, query){
 #' @param data_format when 'data.table' it returns data in a data.table.
 #' If 'raw', data will be returns as csv text
 #' @return query result
+#' @example man/examples/create_and_execute_query.R
 #' @export
 get_query_result <- function(connection, query_id, data_format="data.table"){
   query_info = get_query_info(connection, query_id)
@@ -271,6 +273,7 @@ query_label_to_id <- function(connection, query_label){
 #' @param start_date start date, if date restriction is wanted
 #' @param end_date end date, if date restriction is wanted
 #' @return query
+#' @example man/examples/create_and_execute_query.R
 #' @export
 concept_to_query <- function(concept_id, connection=NULL, concept=NULL,
                              start_date=NULL, end_date=NULL){
@@ -313,9 +316,10 @@ concept_to_query <- function(concept_id, connection=NULL, concept=NULL,
 #' adds date restriction to a object of type 'CONCEPT' or 'CONCEPT_QUERY'
 #'
 #' @param query that will get the date restriction
-#' @param start_date start date of date restriction
-#' @param end_date end date of date restriction
+#' @param start_date start date of date restriction in format: YYYY-MM-DD
+#' @param end_date end date of date restriction in format: YYYY-MM-DD
 #' @return query with date restriction
+#' @example man/examples/date_restriction.R
 #' @export
 add_date_restriction <- function(query, start_date, end_date){
   if (query$type == "CONCEPT_QUERY"){

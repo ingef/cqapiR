@@ -34,7 +34,7 @@ add_concepts_end <- function(connection){
 
 add_concept_id_end <- function(connection, concept_id){
   connection = add_dataset_end(connection)
-  connection$url <- url_paste(connection$url, "concept", concept_id)
+  connection$url <- url_paste(connection$url, "concepts", concept_id)
   return(connection)
 }
 

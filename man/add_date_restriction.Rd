@@ -9,13 +9,17 @@ add_date_restriction(query, start_date, end_date)
 \arguments{
 \item{query}{that will get the date restriction}
 
-\item{start_date}{start date of date restriction}
+\item{start_date}{start date of date restriction in format: YYYY-MM-DD}
 
-\item{end_date}{end date of date restriction}
+\item{end_date}{end date of date restriction in format: YYYY-MM-DD}
 }
 \value{
 query with date restriction
 }
 \description{
 adds date restriction to a object of type 'CONCEPT' or 'CONCEPT_QUERY'
+}
+\examples{
+query = add_date_restriction(query,
+                             start_date="2019-01-01", end_date="2019-12-31")
 }
