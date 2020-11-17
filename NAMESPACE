@@ -3,6 +3,7 @@
 export(absolute_form_query)
 export(add_date_restriction)
 export(change_dataset)
+export(concept_id_to_query)
 export(concept_to_query)
 export(execute_query)
 export(get_concept)

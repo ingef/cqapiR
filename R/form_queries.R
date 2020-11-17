@@ -1,30 +1,56 @@
 
 ###################### Form Queries #######################
 
+
+#' Creates concept objects from concept ids to use in export form
 concept_ids_to_concept_objs <- function(connection, concept_ids){
 
   concepts = get_concepts(connection)
 
+  needed_root_concept_objs = list()
+
   queries = list()
+
+  # build query for each concept id
   for (concept_id in concept_ids){
-    concept = concepts[[concept_id]]
-    if (is.null(concept)){
-      stop(paste("Could not find concept_id ", concept_id))
+
+    # get root concept to extract tables (and label if concept is root concept)
+    root_concept_id = root_of_concept_id(concept_id)
+    root_concept = concepts[[root_concept_id]]
+    if (is.null(root_concept)){
+      stop(paste("Could not find root",root_concept_id,"for concept id", concept_id))
     }
+
+    # when concept id is child concept, get root concept obj to check if concept id is valid and to extract label
+    if (root_concept_id == concept_id){
+      label = root_concept$label
+    } else {
+      if (!root_concept_id %in% names(needed_root_concept_objs)){
+        needed_root_concept_objs[[root_concept_id]] = get_concept(connection, root_concept_id)
+      }
+      root_concept_obj = needed_root_concept_objs[[root_concept_id]][[concept_id]]
+      if (is.null(root_concept_obj)){
+        stop(paste("Could not find concept id", concept_id))
+      }
+      label = root_concept_obj$label
+    }
+
     tables = list()
-    for (table in concept$tables){
+    for (table in root_concept$tables){
       tables = list.append(tables, list(id=table$connectorId))
     }
     queries = list.append(queries,
                           list(
                             "type"="CONCEPT",
                             "ids"=concept_id,
-                            "label"=concept$label,
+                            "label"=label,
                             "tables"=tables
                           ))
   }
   return(queries)
 }
+
+
 
 #' Create form query of type 'ABSOLUTE'
 #'
@@ -127,6 +153,8 @@ relative_form_query <- function(query_id,
   }
 
 
+  # TODO: convert before and after ids in one go to save concept loading when
+  # same root has to be loaded for both date ranges
   if (!is.null(before_concept_ids)){
     before_queries = concept_ids_to_concept_objs(connection, before_concept_ids)
   }

@@ -190,6 +190,7 @@ concept_to_query <- function(concept_id, connection=NULL, concept=NULL,
     if (is.null(connection)){
       stop("connection must be defined when concept is NULL")
     }
+    validate_id_dataset(concept_id)
     concepts = get_concepts(connection)
     concept = concepts[[concept_id]]
   }
@@ -203,6 +204,69 @@ concept_to_query <- function(concept_id, connection=NULL, concept=NULL,
     "type"="CONCEPT",
     "ids"=list(concept_id),
     "label"=concept$label,
+    "tables"=tables
+  )
+
+
+  if (!is.null(start_date) & !is.null(end_date)){
+    return(add_date_restriction(query, start_date, end_date))
+  } else {
+    return(
+      list(
+        type="CONCEPT_QUERY",
+        root= query
+      )
+    )
+  }
+}
+
+
+#' Creates query from concept id
+#'
+#' Takes concept id and connection to create query from concept
+#' A date range can be added.
+#'
+#' @param connection connection object
+#' @param concept_id concept id of concept to turn into query
+#' @param start_date start date, if date restriction is wanted
+#' @param end_date end date, if date restriction is wanted
+#' @return query
+#' @example man/examples/create_and_execute_query.R
+#' @export
+concept_id_to_query <- function(connection, concept_id,
+                                start_date=NULL, end_date=NULL){
+
+
+  validate_id_dataset(connection, concept_id)
+  # get root concept
+  concepts = get_concepts(connection)
+
+  root_concept_id = root_of_concept_id(concept_id)
+  root_concept = concepts[[root_concept_id]]
+
+  # if not root concept, get id from concept_obj
+  if (concept_id != root_concept_id){
+    root_concept_obj = get_concept(connection, root_concept_id)
+    concept_obj = root_concept_obj[[concept_id]]
+    if (is.null(concept_obj)){
+      stop(paste("Could not find concept_id",
+                 concept_id,"as child of", root_concept_id))
+    }
+    label = concept_obj$label
+  } else {
+    label = root_concept$label
+  }
+
+
+  tables = list()
+  for (table in root_concept$tables){
+    tables = list.append(tables, list(id=table$connectorId))
+  }
+
+  query = list(
+    "type"="CONCEPT",
+    "ids"=list(concept_id),
+    "label"=label,
     "tables"=tables
   )
 
