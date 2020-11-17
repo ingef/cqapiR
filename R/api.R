@@ -190,7 +190,7 @@ concept_to_query <- function(concept_id, connection=NULL, concept=NULL,
     if (is.null(connection)){
       stop("connection must be defined when concept is NULL")
     }
-    validate_id_dataset(concept_id)
+    validate_id_dataset(connection, concept_id)
     concepts = get_concepts(connection)
     concept = concepts[[concept_id]]
   }
