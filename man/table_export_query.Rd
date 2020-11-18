@@ -4,10 +4,19 @@
 \alias{table_export_query}
 \title{Create table export query}
 \usage{
-table_export_query(query, start_date, end_date, connector_id, date_column)
+table_export_query(
+  connection,
+  query_id,
+  start_date,
+  end_date,
+  connector_id,
+  date_column
+)
 }
 \arguments{
-\item{query}{query that defines population}
+\item{connection}{connection object}
+
+\item{query_id}{query_id of the population}
 
 \item{start_date}{start date for date restriction of table data}
 
@@ -24,10 +33,12 @@ table export query
 Creates table export query for getting raw data in conquery
 }
 \examples{
-table_query = table_export_query(query=get_query(connection, query_id),
+table_query = table_export_query(connection = connection,
+                                 query_id = query_id,
                                  start_date="2017-01-01",
                                  end_date="2017-01-31",
-                                 connector_id = "adb_energie.alter.alter",
-                                 date_column = "adb_energie.alter.alter.versichertenzeit")
+                                 connector_id = "fdb_destatis.alter.alter",
+                                 date_column = "fdb_destatis.alter.alter.versichertenzeit")
+
 table_query_id = execute_query(connection, table_query)
 }
