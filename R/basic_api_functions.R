@@ -5,10 +5,14 @@
 #' @param json_data data to send
 #' @return response of request
 post <- function(connection, json_data){
+
   resp = httr::POST(connection$url,
-                    httr::add_headers(Authorization=paste0("Bearer ",connection$token)),
-                    body=json_data, encode = "json")
+                    httr::add_headers(Authorization=paste0("Bearer ",connection$token),
+                                      `Content-Type`="application/json"),
+                    body=rjson::toJSON(query), encode = "json")
+
   httr::stop_for_status(resp, httr::content(resp, "text"))
+
   return(resp)
 }
 
