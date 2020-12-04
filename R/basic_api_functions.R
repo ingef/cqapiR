@@ -9,7 +9,7 @@ post <- function(connection, json_data){
   resp = httr::POST(connection$url,
                     httr::add_headers(Authorization=paste0("Bearer ",connection$token),
                                       `Content-Type`="application/json"),
-                    body=rjson::toJSON(query), encode = "json")
+                    body=rjson::toJSON(json_data), encode = "json")
 
   httr::stop_for_status(resp, httr::content(resp, "text"))
 
